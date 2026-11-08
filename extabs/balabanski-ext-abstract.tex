@@ -67,6 +67,10 @@ Throughout this manuscript, I use \fix{red text} to provide commentary on what w
   XXXXX \= \kill% this line sets tab stop
   $u$ \> Velocity \\
   $C$ \> Concentration \\
+  $I, J, K$ \> Stability factors in calculating the variance of the GPM \\
+  $\sigma^2$ \> Variance \\
+  $U_0$ \> Mean wind speed in the downwind direction, $x_1$ \\
+  $U_{rms}$ \> Root mean-square windspeed \\
   \textit{Subscript}\\
   $1, 2, 3$ \> Typically, relating to the three Cartesian axes, e.g., $(x_1, x_2, x_3)$ \\
 \end{tabbing}
@@ -99,7 +103,7 @@ where $J_0$ is the mass flow rate of the pollutant species, $U_0$ is the mean wi
 \begin{wrapfigure}{R}{0.5\linewidth}
   \centering
   \includegraphics{gaussian-plume-schematic}
-  \caption{Gaussian Plume Schematic, courtesy of \cite{mbeychok_visualization_2007}. Note the differning notation from the schematic, where $x_1 = x$, $x_2 = y$ and $x_3 = z$. The numbered $x$ locations are different locations in the streamwise direction.}
+  \caption{Gaussian Plume Schematic, courtesy of English Wikipedia \cite{mbeychok_visualization_2007}. Note the differning notation from the schematic, where $x_1 = x$, $x_2 = y$ and $x_3 = z$. The numbered $x$ locations are different locations in the streamwise direction.}
   \label{fig:plume-schematic}
 \end{wrapfigure}
 
@@ -115,14 +119,24 @@ which follows from the standard result of the integration of a Gaussian function
 
 The first conceptual challenge of the GPM that follows immediately from \eqnref{eq:gpm-integral} is that nonzero concentrations of the pollutant species are calculated at an infinite distance from the point-source. Granted, most of the mass in any Gaussian distribution is within a few standard deviations of the mean; however, the fact that points a significant distance away contribute mass to the model is not physical.
 
-The second challenge is that the GPM
+The second challenge is that the GPM \X
 
 \section{Methods}
 
 
 \subsection{Dataset}
 
-The data set (TURB-Smoke \cite{biferale_turb-smoke_2026}) is a direct numerical simulation of millions of Lagrangian particles in an incompressible turbulent flow. 
+The data set (TURB-Smoke \cite{biferale_turb-smoke_2026}) is a direct numerical simulation (DNS) of millions of Lagrangian particles in an incompressible turbulent flow. In particular, a DNS of the three-dimensional Navier-Stokes equations was used to advect neutrally bouyant, nonreacting smoke particles seeded from one of five point sources.
+
+The particles are then counted on a course-grained grid to obtain a concentration field. The concentration fields of all five point sources are distinct; however, for the purposes of this analysis, all five point sources were assumed to be colocated on the course grained mesh and the concentration fields of the five point sources were consequently summed.
+
+The data set contains simulation runs with several different mean wind speeds ($U_0$). The mean wind speeds are provided as ratios to the root mean square speed, $U_{rms}$. The different values of these ratios are $U_0/U_{rms} = \{ 0, 1.03, 2.05, 4.11, 6.16 \}$. Note that for $U_0 / U_{rms} = 0$, the data model homogenous isotropic turbulence. For this analysis, we use $U_0/U_{rms} = 2.05$.
+
+\fix{For the future submittal, I will include the different ratios as well, and create a comparison of the model performance for all of them. For this analysis I only have 2.05 because the website to download the data has been down for a month or so now. I am in contact with the corresponding author to try and get more data; however, generating the additional figures/analyses is comparatively simple once data arrives}.
+
+\subsection{Parameter Choice}
+
+\fix{Here, describe the choice of parameters against which the GPM was evaluated}.
 
 \subsection{Statistics}
 
