@@ -18,4 +18,4 @@ where $C$ is the concentration, $J_0$ is the mass flow rate of the contaminant s
 
 This project aims to examine the efficacy of the Gaussian Plume model against a turbulent mean-wind driven flow of smoke particles.
 
-The dataset used is the [TURB-Smoke][https://www.nature.com/articles/s41597-026-06774-7] dataset by Biferale and collaborators.
+The dataset used is the ![TURB-Smoke](https://www.nature.com/articles/s41597-026-06774-7) dataset by Biferale and collaborators.
