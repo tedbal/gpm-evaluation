@@ -12,6 +12,8 @@
 \usepackage{tcolorbox}
 \usepackage{wrapfig}
 \usepackage{graphicx}
+\usepackage{subcaption}
+\captionsetup{subrefformat=parens}
 
 \graphicspath{{../figs}}
 
@@ -37,6 +39,7 @@
 
  % Define commands to assure consistent treatment throughout document
  \newcommand{\eqnref}[1]{(\ref{#1})}
+ \newcommand{\figref}[1]{(Figure \ref{#1})}
  \newcommand{\class}[1]{\texttt{#1}}
  \newcommand{\package}[1]{\texttt{#1}}
  \newcommand{\file}[1]{\texttt{#1}}
@@ -54,7 +57,16 @@
 \maketitle
 
 \begin{tcolorbox}[colback=blue!4!white,colframe=blue,title=A note to the instructor]
-Throughout this manuscript, I use \fix{red text} to provide commentary on what will change between this extended abstract and the final manuscript due at the end of the semester. Please be advised of this annotation.
+  Throughout this manuscript, I use \fix{red text} to provide commentary on what will change between this extended abstract and the final manuscript due at the end of the semester. Please be advised of this annotation.
+
+  Further: in an effort to get feedback on the efficacy of this paper, I want to be upfront about the story I hope to present:
+  \begin{enumerate}
+  \item The GPM model is the standard of care in modeling air contaminant plumes
+  \item The GPM model was evaluated using the TURB-Smoke dataset
+  \item While the GPM model was effective in modeling the \emph{mean behavior} of the contaminant plume, it underestimates the contamination levels on the tails of the distribution
+  \item Underestimating the concentration at the tails presents a concern as short-term exposure to contamination may cause serious damage
+  \end{enumerate}
+  Please let me know if this story comes across, and how I can better present the information to convey this story.
 \end{tcolorbox}
 
 \begin{abstract}
@@ -70,9 +82,11 @@ Throughout this manuscript, I use \fix{red text} to provide commentary on what w
   $I, J, K$ \> Stability factors in calculating the variance of the GPM \\
   $\sigma^2$ \> Variance \\
   $U_0$ \> Mean wind speed in the downwind direction, $x_1$ \\
-  $U_{rms}$ \> Root mean-square windspeed \\
+  $U_{rms}$ \> Root mean-square (rms) windspeed \\
+  $\gamma$ \> Ratio of the mean wind speed $U_0$ to the rms windspeed $U_{rms}$ \\
   \textit{Subscript}\\
   $1, 2, 3$ \> Typically, relating to the three Cartesian axes, e.g., $(x_1, x_2, x_3)$ \\
+  $\mathrm{rms}$ \> Root mean-square
 \end{tabbing}
 
 \section{Introduction}
@@ -81,7 +95,7 @@ Throughout this manuscript, I use \fix{red text} to provide commentary on what w
 
 The Gaussian Plume Model (GPM) \cite{sinha_application_2025} is a semi-empirical model of contaminant transport discharging from an elevated point-source. The GPM is integrated into several available air quality software, including the EPA's AERMOD \cite{cimorelli_aermod_2005} package. The GPM has been used to model regional-scale particulate matter concentration in Poland \cite{kawka_downscaling_2023}, wildfire pollution in Italy \cite{lotrecchiano_pollution_2020}, and industrial pollution from oil refineries in Iraq \cite{salih_air_2025}.
 
-The essence of the GPM is that in a steady-state, mean-wind driven flow, neutrally-bouyant air quality pollutants will advect downwind ($x_1$) and disperse in the vertical and transverse directions. The concentration profile ($C$) in the transverse ($x_2$) and vertical ($x_3$) is modeled as a Gaussian distribution, i.e., $C(x_2, x_3) \sim \mathcal{N}(c_0, \sigma_2^2, \sigma_3^2)$, where $c_0$ is the mean concentration at per unit area. A schematic of the GPM concentration profile for a smokestack point-source (the cannonical application for the GPM) is provided in Figure \ref{fig:plume-schematic}
+The essence of the GPM is that in a steady-state, mean-wind driven flow, neutrally-bouyant air quality pollutants will advect downwind ($x_1$) and disperse in the vertical and transverse directions. The concentration profile ($C$) in the transverse ($x_2$) and vertical ($x_3$) is modeled as a Gaussian distribution, i.e., $C(x_2, x_3) \sim \mathcal{N}(c_0, \sigma_2^2, \sigma_3^2)$, where $c_0$ is the mean concentration at per unit area. A schematic of the GPM concentration profile for a smokestack point-source (the cannonical application for the GPM) is provided in \figref{fig:plume-schematic}
 
 The closed form of the GPM requires the calculation of the variance of the Gaussian distributions in the longitudinal and transverse directions, given by
 
@@ -123,18 +137,39 @@ The second challenge is that the GPM \X
 
 \section{Methods}
 
-
 \subsection{Dataset}
 
 The data set (TURB-Smoke \cite{biferale_turb-smoke_2026}) is a direct numerical simulation (DNS) of millions of Lagrangian particles in an incompressible turbulent flow. In particular, a DNS of the three-dimensional Navier-Stokes equations was used to advect neutrally bouyant, nonreacting smoke particles seeded from one of five point sources.
 
 The particles are then counted on a course-grained grid to obtain a concentration field. The concentration fields of all five point sources are distinct; however, for the purposes of this analysis, all five point sources were assumed to be colocated on the course grained mesh and the concentration fields of the five point sources were consequently summed.
 
-The data set contains simulation runs with several different mean wind speeds ($U_0$). The mean wind speeds are provided as ratios to the root mean square speed, $U_{rms}$. The different values of these ratios are $U_0/U_{rms} = \{ 0, 1.03, 2.05, 4.11, 6.16 \}$. Note that for $U_0 / U_{rms} = 0$, the data model homogenous isotropic turbulence. For this analysis, we use $U_0/U_{rms} = 2.05$.
+The data set contains simulation runs with several different mean wind speeds ($U_0$). The mean wind speeds are provided as ratios to the root mean square speed, $U_{rms}$. The different values of the velocity ratio, $\gamma$ are $\gamma = U_0/U_{rms} = \{ 0, 1.03, 2.05, 4.11, 6.16 \}$. Note that for $\gamma = 0$, the data model homogenous isotropic turbulence. 
+
+\begin{wrapfigure}{r}{.6\textwidth}
+  \begin{subfigure}[b]{\linewidth}
+    \centering\captionsetup[subfigure]{justification=centering}
+    \includegraphics[width=\linewidth]{transverse-2dconc103}
+    \subcaption{}
+    \label{fig:trans-conc-103}\par\vfill
+    
+    \includegraphics[width=\linewidth]{transverse-2dconc205}
+    \subcaption{}
+    \label{fig:trans-conc-205}
+    
+    \includegraphics[width=\linewidth]{transverse-2dconc616}
+    \subcaption{}
+    \label{fig:trans-conc-616}
+  \end{subfigure}
+  \caption{Transverse distributions at different downstream points, for $\gamma = \frac{U_0}{U_{rms}} = $ \subref{fig:trans-conc-103} 1.03 \subref{fig:trans-conc-205} 2.05 \subref{fig:trans-conc-616} 6.16}\label{fig:transverse-distributions}
+\end{wrapfigure}
+
+For greater values of the velocity ratio, we observe that downstream diffusion is less rapid \figref{fig:transverse-distributions}. Note that the aspect ratios of the domains vary in each of the scenario runs with the different velocity ratios, such that there are a greater number of points in the downwind direction for greater velocity ratio. Nonetheless, the concentrations in the downwind direction diffuse at slower raters at greater velocity ratios, which is consistent with physical intuition. For $\gamma = 0$, the concentration distribution is unimodally distributed about the source origin.
 
 \fix{For the future submittal, I will include the different ratios as well, and create a comparison of the model performance for all of them. For this analysis I only have 2.05 because the website to download the data has been down for a month or so now. I am in contact with the corresponding author to try and get more data; however, generating the additional figures/analyses is comparatively simple once data arrives}.
 
 \subsection{Parameter Choice}
+
+The choice of parameters in the GPM is dependent on the 
 
 \fix{Here, describe the choice of parameters against which the GPM was evaluated}.
 
@@ -146,13 +181,21 @@ The data set contains simulation runs with several different mean wind speeds ($
 
 \fix{Here, develop analytically what the transport of the GPM should look like.}
 
+Take the 
+
 \section{Results}
+
+
 
 \fix{compare GPM to data, and better model}
 
 \section{Discussion}
 
 \section{Code and Data Availability}
+
+The data used to complete this analysis are available at the TURB-Smoke repository \cite{biferale_turb-smoke_2026}.
+Code is available at the \href{https://github.com/tedbal/gpm-evaluation}{gpm-evaluation} GitHub Repository (\url{https://github.com/tedbal/gpm-evaluation}).
+\emph{LLM Disclosure Statement}: The work in this paper is wholly of the author's creation. The author of this work did not use large language models (LLMs) or other ''Artifical Intelligence'' models to create any part of this paper, including the coding or analysis.
 
 
 % ----------------------------------------------------

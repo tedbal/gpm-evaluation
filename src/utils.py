@@ -19,14 +19,23 @@ def read_data(filename):
 
     # add the concentrations from the five sources together to analyze as one
     data = np.add.reduce(data, axis=0)
+    data = np.flip(data, axis=1) # flip it along the downstream axis is greater
 
     return data
 
+# calculate coordinates
+
 # calculate the meanfree (fluctuating) field
 def calculate_meanfree(data)
-    cbar = np.mean(data, axis=0)
-    cf = np.zeros_like(data)
+    cbar = np.mean(data, axis=0) # mean field
+    cf = np.zeros_like(data) # initialize the meanfree field
     for i in range(data.shape[0]):
         cf[i, :, :] = np.subtract(data[i, :, :], cbar)
 
-    return cf
+    return cf, cbar
+
+
+# check if everything is working
+if __name__ == "__main__":
+    # read in a data file
+    read_data(
