@@ -52,6 +52,8 @@
 \newcommand{\unit}[1]{\, \mathrm{#1}}
 \newcommand{\fix}[1]{\color{red} #1 \color{black}}
 
+\DeclareMathOperator*{\argmin}{arg\,min}
+
 \begin{document}
 
 \maketitle
@@ -84,6 +86,7 @@
   $U_0$ \> Mean wind speed in the downwind direction, $x_1$ \\
   $U_{rms}$ \> Root mean-square (rms) windspeed \\
   $\gamma$ \> Ratio of the mean wind speed $U_0$ to the rms windspeed $U_{rms}$ \\
+  $\mathcal{E}$ \> Mathematical expectation \\
   \textit{Subscript}\\
   $1, 2, 3$ \> Typically, relating to the three Cartesian axes, e.g., $(x_1, x_2, x_3)$ \\
   $\mathrm{rms}$ \> Root mean-square
@@ -141,10 +144,6 @@ The second challenge is that the GPM \X
 
 The data set (TURB-Smoke \cite{biferale_turb-smoke_2026}) is a direct numerical simulation (DNS) of millions of Lagrangian particles in an incompressible turbulent flow. In particular, a DNS of the three-dimensional Navier-Stokes equations was used to advect neutrally bouyant, nonreacting smoke particles seeded from one of five point sources.
 
-The particles are then counted on a course-grained grid to obtain a concentration field. The concentration fields of all five point sources are distinct; however, for the purposes of this analysis, all five point sources were assumed to be colocated on the course grained mesh and the concentration fields of the five point sources were consequently summed.
-
-The data set contains simulation runs with several different mean wind speeds ($U_0$). The mean wind speeds are provided as ratios to the root mean square speed, $U_{rms}$. The different values of the velocity ratio, $\gamma$ are $\gamma = U_0/U_{rms} = \{ 0, 1.03, 2.05, 4.11, 6.16 \}$. Note that for $\gamma = 0$, the data model homogenous isotropic turbulence. 
-
 \begin{wrapfigure}{r}{.6\textwidth}
   \begin{subfigure}[b]{\linewidth}
     \centering\captionsetup[subfigure]{justification=centering}
@@ -163,13 +162,44 @@ The data set contains simulation runs with several different mean wind speeds ($
   \caption{Transverse distributions at different downstream points, for $\gamma = \frac{U_0}{U_{rms}} = $ \subref{fig:trans-conc-103} 1.03 \subref{fig:trans-conc-205} 2.05 \subref{fig:trans-conc-616} 6.16}\label{fig:transverse-distributions}
 \end{wrapfigure}
 
-For greater values of the velocity ratio, we observe that downstream diffusion is less rapid \figref{fig:transverse-distributions}. Note that the aspect ratios of the domains vary in each of the scenario runs with the different velocity ratios, such that there are a greater number of points in the downwind direction for greater velocity ratio. Nonetheless, the concentrations in the downwind direction diffuse at slower raters at greater velocity ratios, which is consistent with physical intuition. For $\gamma = 0$, the concentration distribution is unimodally distributed about the source origin.
+The particles are counted on a course-grained grid in a thin vertical slice (half the vertical grid spacing) about the vertical origin to obtain a concentration field in two dimensions.  The concentration fields of all five point sources are distinct; however, for the purposes of this analysis, all five point sources were assumed to be colocated on the course grained mesh and the concentration fields of the five point sources were consequently summed.
 
-\fix{For the future submittal, I will include the different ratios as well, and create a comparison of the model performance for all of them. For this analysis I only have 2.05 because the website to download the data has been down for a month or so now. I am in contact with the corresponding author to try and get more data; however, generating the additional figures/analyses is comparatively simple once data arrives}.
+The data set contains simulation runs with several different mean wind speeds ($U_0$). The mean wind speeds are provided as ratios to the root mean square speed, $U_{rms}$. The different values of the velocity ratio, $\gamma$ are $\gamma = U_0/U_{rms} = \{ 0, 1.03, 2.05, 4.11, 6.16 \}$. Note that for $\gamma = 0$, the data model homogenous isotropic turbulence. 
+
+For greater values of the velocity ratio, we observe that downstream diffusion is less rapid \figref{fig:transverse-distributions}. Note that the aspect ratios of the domains vary in each of the scenario runs with the different velocity ratios, such that there are a greater number of points in the downwind direction for greater velocity ratio. Nonetheless, the concentrations in the downwind direction diffuse at slower raters at greater velocity ratios, which is consistent with physical intuition. For $\gamma = 0$, the concentration distribution is unimodally distributed about the source origin.
 
 \subsection{Parameter Choice}
 
-The choice of parameters in the GPM is dependent on the 
+To parameterize the GPM, we need to find the appropriate values of $I_2$, $J_2$, and $K_2$ in \eqnref{eq:gpm-variances}. The choice of $\sigma_3$ is immaterial to the problem. Since the concentrations reported are only for a thin layer in the vertical direction, the concentrations are reported per unit vertical length.
+
+The estimate of the GPM variance in the $x_2$ direction, $\widehat{\sigma_2}$ was chosen by minimizing the root mean-square error between the observations, $\tilde{C}$, and the model \eqnref{eq:gpm}. This is described mathematically in \eqnref{eq:sigma2-minimization}.
+
+\begin{equation} \label{eq:sigma2-minimization}
+  \hat{I_2}, \hat{J_2}, \hat{K_2} = \argmin_{I_2, J_2, K_2} \sqrt{\mathcal{E} \left[\left(\tilde{C} -  C \right)^2 \right]}
+\end{equation}
+
+The term to be minimized in the right hand side of \eqnref{eq:sigma2-minimization} is the root mean-squared error, $\epsilon_{rms}$. The estimated best-fit variance and associated root mean-squared error for the different mean windspeed scenarios are tabulated in Table \ref{tbl:parameter-choice}.
+
+\begin{table}
+  \centering
+  \caption{GPM model parameter estimates, stability classification, and root mean-square error under different mean windspeed scenarios}
+  \label{tbl:parameter-choice}
+  \begin{tabular}{c c c c c}
+    \hline
+    $\gamma$ & 1.03 & 2.05 & 4.11 & 6.16 \\
+    \hline \hline
+    $\widehat{I_2}$ & 0 & 0 & 0 & 0 \\
+    \hline
+    $\widehat{J_2}$ & 0 & 0 & 0 & 0 \\
+    \hline
+    $\widehat{K_2}$ & 0 & 0 & 0 & 0 \\
+    \hline
+    Stability Class & A & A & A & A \\
+    \hline
+    $\epsilon_{rms}$ & 0 & 0 & 0 & 0 \\
+    \hline
+  \end{tabular}
+\end{table}
 
 \fix{Here, describe the choice of parameters against which the GPM was evaluated}.
 
