@@ -8,6 +8,8 @@ import pickle as pkl
 from IPython.display import HTML
 from tqdm import tqdm
 
+from gpmeval import GaussianPlume2D
+
 # set the data base path for the work
 DATA_BASE_PATH = os.path.abspath("../data/")
 
@@ -61,6 +63,26 @@ def calculate_downwind_variance(pts, cbar):
 
     return sigmas
 
+# create a function to load the optimal GPM from data
+def load_gpm(filename):
+    # read the whole file
+    with open(filename, 'r') as fi:
+        lines = fi.readlines()[0]
+
+    # if there is a trailing comma, don't read it
+    if lines[-1] == ",":
+        lines = lines[:-1]
+
+    # separate out into the results
+    sep = lines.strip().split(",")
+    sepf = [float(i) for i in sep]
+    J0, U0, I2, J2, K2 = sepf
+
+    # build and return the gpm model
+    gpm = GaussianPlume2D(J0, U0)
+    gpm.set_parameters(I2, J2, K2)
+    return gpm
+    
 
 
 # check if everything is working

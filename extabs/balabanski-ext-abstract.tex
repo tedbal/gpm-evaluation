@@ -48,6 +48,7 @@
  % helpful "debugging" command from stackoverflow. prints out big [FIX]
 \newcommand{\X}{\color{red}\large\textbf{[FIX]}\color{black}\normalsize}
 \newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pdn}[3]{\frac{\partial^{#3} #1}{\partial #2^{#3}}}
 \newcommand{\dd}[2]{\frac{d #1}{d #2}}
 \newcommand{\unit}[1]{\, \mathrm{#1}}
 \newcommand{\fix}[1]{\color{red} #1 \color{black}}
@@ -65,14 +66,13 @@
   \begin{enumerate}
   \item The GPM model is the standard of care in modeling air contaminant plumes
   \item The GPM model was evaluated using the TURB-Smoke dataset
-  \item While the GPM model was effective in modeling the \emph{mean behavior} of the contaminant plume, it underestimates the contamination levels on the tails of the distribution
-  \item Underestimating the concentration at the tails presents a concern as short-term exposure to contamination may cause serious damage
+  \item While the GPM model was effective in modeling the \emph{mean behavior} of the contaminant plume, it underestimates the contamination levels on the tails of the distribution \fix{these results are under development}
   \end{enumerate}
   Please let me know if this story comes across, and how I can better present the information to convey this story.
 \end{tcolorbox}
 
 \begin{abstract}
-  Air pollution is an issue of global consequence, where short-term spikes can give serious health issues. The Gaussian Plume Model (GPM) is a widely-utilized model of mean air pollutant transport, used to regulate pollution discharge. In this study, we evaluate the GPM against a turbulent dataset of neutrally-bouyant smoke particles. \fix{Results and Discussion summary to follow, once results are more mature}.
+  Air pollution is an issue of global consequence, where short-term exposure to air pollutants can result in injury. The Gaussian Plume Model (GPM) is a widely-utilized model of mean air pollutant transport, used to regulate pollution discharge. In this study, we evaluate the GPM against a turbulent dataset of neutrally-bouyant smoke particles. The GPM was effective in modelling mean behavior of the contaminant transport, short-term exposure beyond the mean-influence region (particularly in lower mean wind shear scenarios) are underestimated by the GPM. \fix{Results and Discussion summary to follow, once results are more mature}.
 \end{abstract}
 
 \section*{Nomenclature}
@@ -82,6 +82,7 @@
   $u$ \> Velocity \\
   $C$ \> Concentration \\
   $I, J, K$ \> Stability factors in calculating the variance of the GPM \\
+  $E$ \> Exposure, the difference between the observed and GPM concentration \\
   $\sigma^2$ \> Variance \\
   $U_0$ \> Mean wind speed in the downwind direction, $x_1$ \\
   $U_{rms}$ \> Root mean-square (rms) windspeed \\
@@ -94,7 +95,15 @@
 
 \section{Introduction}
 
-\fix{Add a few sentences on the health impacts of poor air quality and why air quality modeling is important}
+Air pollution has a direct impact on human health. Short-term PM2.5 exposure (suspended particles less than 2.5 $\unit{\mu m}$ in diameter) have been estimated to have been responsible for over 1 million premature deaths globally \cite{yu_estimates_2024}. Poor air quality has been shown to lead to cariovascular injury \cite{simkhovich_air_2008}, immunological injury \cite{bernstein_health_2004}, and other negative health outcomes. The burden of air pollution is disproportionately borne on lower socioeconomic populations globally, except in Europe where the evidence is mixed for socioeconomic status and air pollution \cite{hajat_socioeconomic_2015}.
+
+The concentration distribution for a neutrally bouyant nonreacting species in turbulent flow is governed by its continuity equation. The form of the continuity equation of the species is closely related to the continuity equation for the fluid, and takes the following form \cite{bird_transport_1960}
+
+\begin{equation} \label{eq:turb-cont}
+  \pd{C}{t} = -\pd{}{x_i} \left( v_i C \right) + D \pdn{C}{x_{ii}}{2}
+\end{equation}
+
+Note the use of the Einsteinian indicial notation. $D$ is the eddy diffusivity. When \ref{eq:turb-cont} is coupled with the Navier-Stokes equations, the resulting system does not have a known, general analytical solution, and requires great computational resources to model simple shearing atmospheric flows. As a consequence, a simplified model would greatly benefit simple planning decisions, for example for permitting polluting smokestacks, or making realtime predictions of wildfire spread. 
 
 The Gaussian Plume Model (GPM) \cite{sinha_application_2025} is a semi-empirical model of contaminant transport discharging from an elevated point-source. The GPM is integrated into several available air quality software, including the EPA's AERMOD \cite{cimorelli_aermod_2005} package. The GPM has been used to model regional-scale particulate matter concentration in Poland \cite{kawka_downscaling_2023}, wildfire pollution in Italy \cite{lotrecchiano_pollution_2020}, and industrial pollution from oil refineries in Iraq \cite{salih_air_2025}.
 
@@ -117,13 +126,6 @@ where the $I$, $J$, and $K$ are empirically derived stability coefficients, corr
 
 where $J_0$ is the mass flow rate of the pollutant species, $U_0$ is the mean windspeed, and $H$ is the effective height of the point source in the vertical direction. Note that $x_1$ is chosen such that the $x_1$ axis and the mean wind with magnitude $U_0$ are codirectional.
 
-\begin{wrapfigure}{R}{0.5\linewidth}
-  \centering
-  \includegraphics{gaussian-plume-schematic}
-  \caption{Gaussian Plume Schematic, courtesy of English Wikipedia \cite{mbeychok_visualization_2007}. Note the differning notation from the schematic, where $x_1 = x$, $x_2 = y$ and $x_3 = z$. The numbered $x$ locations are different locations in the streamwise direction.}
-  \label{fig:plume-schematic}
-\end{wrapfigure}
-
 The first bracketed term in the GPM \eqnref{eq:gpm} is the concentration of the pollutant per cross sectional area (with units mass per length). The second and third bracketed terms in \eqnref{eq:gpm} are the influence of the distribution in the transverse and vertical directions, respecitvely. The third term can be modified to model the effect of an inversion aloft or the reflection of the ground below by adding additional Gaussian terms, which mimic the effect of additional point sources in unphysical locations (e.g., $H$ meters below the ground) \cite{cimorelli_aermod_2005}. The influence of the distance in the downwind direction is to increase the variances $\sigma_2^2$ and $\sigma_3^2$ \eqnref{eq:gpm-variances} thereby diffusing the pollutant across an increasingly larger cross section. 
 
 The GPM satisfies a few criteria which make it useful as a model. Firstly, the results of the model are generally consistent with observation \cite{sinha_application_2025, cimorelli_aermod_2005, kawka_downscaling_2023, lotrecchiano_pollution_2020, salih_air_2025}. Second, the model can be calculated explicitly, requiring very few computational resources. Finally, the GPM observes continuity. To demonstrate this, integrate \eqnref{eq:gpm} in the cross-sectional direction
@@ -134,37 +136,48 @@ The GPM satisfies a few criteria which make it useful as a model. Firstly, the r
 
 which follows from the standard result of the integration of a Gaussian function.
 
-The first conceptual challenge of the GPM that follows immediately from \eqnref{eq:gpm-integral} is that nonzero concentrations of the pollutant species are calculated at an infinite distance from the point-source. Granted, most of the mass in any Gaussian distribution is within a few standard deviations of the mean; however, the fact that points a significant distance away contribute mass to the model is not physical.
+One of the major conceptual challenges of the GPM that follows immediately from \eqnref{eq:gpm-integral} is that nonzero concentrations of the pollutant species are calculated at an infinite distance from the point-source. Granted, most of the mass in any Gaussian distribution is within a few standard deviations of the mean; however, the fact that points a significant distance away contribute mass to the model is not physical.
 
-The second challenge is that the GPM \X
+We define the exposure, $E$, as the (positive) difference between the observed pollutant concentration, $\tilde{C}$, and the GPM prediction, $C$ for the concentration. The exposure physically represents the unaccounted concentration surplus from the Gaussian Plume model.
+
+\begin{equation} \label{eq:exposure-def}
+  E(x_1, x_2, t) = \max \left(0, \tilde{C} - C \right)
+\end{equation}
+
+\begin{wrapfigure}{R}{0.5\linewidth}
+  \centering
+  \includegraphics{gaussian-plume-schematic}
+  \caption{Gaussian Plume Schematic, courtesy of English Wikipedia \cite{mbeychok_visualization_2007}. Note the differning notation from the schematic, where $x_1 = x$, $x_2 = y$ and $x_3 = z$. The numbered $x$ locations are different locations in the streamwise direction.}
+  \label{fig:plume-schematic}
+\end{wrapfigure}
+
+When the exposure is integrated with respect to time, the result is the cumulative exposure; the cumulative exposure can be used to estimate pollutant exposure risk to health and the environment.
 
 \section{Methods}
 
 \subsection{Dataset}
 
-The data set (TURB-Smoke \cite{biferale_turb-smoke_2026}) is a direct numerical simulation (DNS) of millions of Lagrangian particles in an incompressible turbulent flow. In particular, a DNS of the three-dimensional Navier-Stokes equations was used to advect neutrally bouyant, nonreacting smoke particles seeded from one of five point sources.
 
-\begin{wrapfigure}{r}{.6\textwidth}
-  \begin{subfigure}[b]{\linewidth}
-    \centering\captionsetup[subfigure]{justification=centering}
-    \includegraphics[width=\linewidth]{transverse-2dconc103}
-    \subcaption{}
-    \label{fig:trans-conc-103}\par\vfill
-    
-    \includegraphics[width=\linewidth]{transverse-2dconc205}
-    \subcaption{}
-    \label{fig:trans-conc-205}
-    
-    \includegraphics[width=\linewidth]{transverse-2dconc616}
-    \subcaption{}
-    \label{fig:trans-conc-616}
-  \end{subfigure}
-  \caption{Transverse distributions at different downstream points, for $\gamma = \frac{U_0}{U_{rms}} = $ \subref{fig:trans-conc-103} 1.03 \subref{fig:trans-conc-205} 2.05 \subref{fig:trans-conc-616} 6.16}\label{fig:transverse-distributions}
-\end{wrapfigure}
+The data set (TURB-Smoke \cite{biferale_turb-smoke_2026}) is a direct numerical simulation (DNS) of millions of Lagrangian particles in an incompressible turbulent flow. In particular, a DNS of the three-dimensional Navier-Stokes equations was used to advect neutrally bouyant, nonreacting smoke particles seeded from one of five point sources.
 
 The particles are counted on a course-grained grid in a thin vertical slice (half the vertical grid spacing) about the vertical origin to obtain a concentration field in two dimensions.  The concentration fields of all five point sources are distinct; however, for the purposes of this analysis, all five point sources were assumed to be colocated on the course grained mesh and the concentration fields of the five point sources were consequently summed.
 
 The data set contains simulation runs with several different mean wind speeds ($U_0$). The mean wind speeds are provided as ratios to the root mean square speed, $U_{rms}$. The different values of the velocity ratio, $\gamma$ are $\gamma = U_0/U_{rms} = \{ 0, 1.03, 2.05, 4.11, 6.16 \}$. Note that for $\gamma = 0$, the data model homogenous isotropic turbulence. 
+
+\begin{figure}
+  \begin{subfigure}[b]{0.5 \linewidth}
+    \centering\captionsetup[subfigure]{justification=centering}
+    \includegraphics[width=\linewidth]{transverse-2dconc103}
+    \subcaption{}
+    \label{fig:trans-conc-103}\par\vfill
+  \end{subfigure}
+  \begin{subfigure}[b]{0.5\linewidth}
+    \includegraphics[width=\linewidth]{transverse-2dconc616}
+    \subcaption{}
+    \label{fig:trans-conc-616}
+  \end{subfigure}
+  \caption{Transverse distributions at different downstream points, for $\gamma = \frac{U_0}{U_{rms}} = $ \subref{fig:trans-conc-103} 1.03 and \subref{fig:trans-conc-616} 6.16}\label{fig:transverse-distributions}
+\end{figure}
 
 For greater values of the velocity ratio, we observe that downstream diffusion is less rapid \figref{fig:transverse-distributions}. Note that the aspect ratios of the domains vary in each of the scenario runs with the different velocity ratios, such that there are a greater number of points in the downwind direction for greater velocity ratio. Nonetheless, the concentrations in the downwind direction diffuse at slower raters at greater velocity ratios, which is consistent with physical intuition. For $\gamma = 0$, the concentration distribution is unimodally distributed about the source origin.
 
@@ -172,11 +185,13 @@ For greater values of the velocity ratio, we observe that downstream diffusion i
 
 To parameterize the GPM, we need to find the appropriate values of $I_2$, $J_2$, and $K_2$ in \eqnref{eq:gpm-variances}. The choice of $\sigma_3$ is immaterial to the problem. Since the concentrations reported are only for a thin layer in the vertical direction, the concentrations are reported per unit vertical length.
 
-The estimate of the GPM variance in the $x_2$ direction, $\widehat{\sigma_2}$ was chosen by minimizing the root mean-square error between the observations, $\tilde{C}$, and the model \eqnref{eq:gpm}. This is described mathematically in \eqnref{eq:sigma2-minimization}.
+The estimate of the GPM variance in the $x_2$ direction, $\widehat{\sigma_2}$ was chosen by minimizing the root mean-square error between the observed downwind variance, $\tilde{\sigma_2^2}$, and the model \eqnref{eq:gpm}. This is described mathematically in \eqnref{eq:sigma2-minimization}.
 
 \begin{equation} \label{eq:sigma2-minimization}
-  \hat{I_2}, \hat{J_2}, \hat{K_2} = \argmin_{I_2, J_2, K_2} \sqrt{\mathcal{E} \left[\left(\tilde{C} -  C \right)^2 \right]}
+  \hat{I_2}, \hat{J_2}, \hat{K_2} = \argmin_{I_2, J_2, K_2} \sqrt{\mathcal{E} \left[\left(\tilde{\sigma_2^2} -  \sigma_2^2(I_2, J_2, K_2) \right)^2 \right]}
 \end{equation}
+
+The variance was chosen to be minimized, as opposed to the overall concentration, because fitting to the concentration may have the unintended effect of fitting a very wide Gaussian, which minimizes the mean but does not accurately model the Gaussian distribution (i.e., the fitted function is flat over the domain).
 
 The term to be minimized in the right hand side of \eqnref{eq:sigma2-minimization} is the root mean-squared error, $\epsilon_{rms}$. The estimated best-fit variance and associated root mean-squared error for the different mean windspeed scenarios are tabulated in Table \ref{tbl:parameter-choice}.
 
@@ -188,38 +203,67 @@ The term to be minimized in the right hand side of \eqnref{eq:sigma2-minimizatio
     \hline
     $\gamma$ & 1.03 & 2.05 & 4.11 & 6.16 \\
     \hline \hline
-    $\widehat{I_2}$ & 0 & 0 & 0 & 0 \\
+    $\widehat{I_2}$ & -0.434 & -1.200 & -2.074 & -2.473 \\
     \hline
-    $\widehat{J_2}$ & 0 & 0 & 0 & 0 \\
+    $\widehat{J_2}$ & 0.788 & 1.182 & 1.300 & 1.230 \\
     \hline
-    $\widehat{K_2}$ & 0 & 0 & 0 & 0 \\
+    $\widehat{K_2}$ & -0.150 & -0.217 & -0.160 & -0.109 \\
     \hline
-    Stability Class & A & A & A & A \\
+    Stability Class & A & A & C & D \\
     \hline
-    $\epsilon_{rms}$ & 0 & 0 & 0 & 0 \\
+    $\epsilon_{rms}$ & 314.3 & 247.1 & 176.9 & 143.9 \\
     \hline
   \end{tabular}
 \end{table}
 
-\fix{Here, describe the choice of parameters against which the GPM was evaluated}.
+\subsection{Spatial Exposure Statistics}
 
-\subsection{Statistics}
+Here, we use the fitted GPM and calculate the exposure from (\ref{eq:exposure-def}). Once the exposure is calculated, we evaluate the spatial autocorrelation \cite{bendat_random_2011} of the mean-free exposure, $E'$, calculated as follows
 
-\fix{Here, develop analytically what the statistics of the GPM should look like.}
+\begin{equation} \label{eq:exposure-autocorr}
+  R_{E' E'}(\eta, \xi) = \mathcal{E} \left[ E' (x_1, x_2) E'(x_1 + \eta, x_2 + \xi) \right]
+\end{equation}
 
-\subsection{Turbulent Model}
+where the expectation in (\ref{eq:exposure-autocorr}) is taken over time. Since the GPM is steady, the POD of the GPM is simply the GPM. 
 
-\fix{Here, develop analytically what the transport of the GPM should look like.}
+A Galerkin Reduced Order Model (ROM) using the proper orthogonal decomposition procedure \cite{hijazi_data-driven_2020-1} was developed to model exposure for each of the velocity ratio ($\gamma$) scenarios. The purpose of the ROM is to visualize the structures in the turbulent flow.
 
-Take the 
+Ideally, ROMs have most of the energy contained in as few modes as feasible. For the ROMs developed for the exposure, this is the case (\ref{fig:rom-energy}). For higher values of the velocity ratio $\gamma$, the energy contained in the first few modes of the ROM increases. This is consistent with the observation that the higher velocity ratio flows have a dominant downwind component.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\linewidth]{pod_103_energy}
+  \caption{Relative (left) and cumulative (right) energy contained in the few ROM modes of the exposure for $\gamma = 1.03$.}
+  \label{fig:rom-energy}
+\end{figure}
 
 \section{Results}
 
+The ROM modes have greater variability for lower velocity ratios (\ref{fig:pod-results}), and are more structured for higher velocity ratios, which is as expected. The downwind direction is the predominant mode, so when the RMS velocity is lower (relative to the mean wind shear) the ROM modes should be more clear.
 
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.5\linewidth}
+    \centering\captionsetup[subfigure]{justification=centering}
+    \includegraphics{modes_103}
+    \subcaption{}
+    \label{fig:pod-103}\par\vfill
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.5\linewidth}
+    \includegraphics{modes_616}
+    \subcaption{}
+    \label{fig:pod-616}
+  \end{subfigure}
+  \caption{First three ROM modes of the exposure, for $\gamma = $ \subref{fig:pod-103} 1.03 and \subref{fig:pod-616} 6.16}\label{fig:pod-results}
+\end{figure}
 
-\fix{compare GPM to data, and better model}
+\fix{A more detailed results section will be developed once the results are a little more mature, with the comparison of the exposure as a function of downwind distance and as a function of Reynolds number.}
 
 \section{Discussion}
+
+The results indicate that the greatest exposure is when the velocity ratio is low. Namely that the RMS velocity is on the same order of the mean wind shear. In the case where there is no mean wind shear, the GPM makes no prediction; however, the plume is 
+
+\fix{A more detailed discussion, with a comparison to results in literature, will follow. Further, a discussion of the exposure as a function of downwind distance and as a function of Reynolds number will be completed. The hypothesis is that the exposure will increase as a function of downwind distance and will decrease as a function of Reynolds number.}
 
 \section{Code and Data Availability}
 

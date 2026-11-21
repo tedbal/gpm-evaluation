@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 import pandas as pd
 
 # import functions from util
-from utils import read_data, calculate_meanfree, find_source, calculate_downwind_variance
+from utils import *
 
 # set the data base path for the work
 DATA_BASE_PATH = os.path.abspath("../data/")
@@ -42,7 +42,10 @@ class GaussianPlume2D:
         if (K2 is not None):
             self.K2 = K2
 
-    
+    # set the J0 and U0 such that their ratio is unity
+    def normalize(self):
+        self.J0 = 1
+        self.U0 = 1
     
     # evaluate at a set of points    
     def evaluate(self, pts):
@@ -127,11 +130,24 @@ class GaussianPlume2D:
         self.set_parameters(I_fit, J_fit, K_fit)
 
 
+    # write the results to a file
+    def save(self, filename, acc=12):
+        # check if the file exists
+        if not os.path.exists(filename):
+            os.mknod(filename)
+
+        with open(filename, 'w') as fi:
+            fi.write('{:.{acc}f},'.format(self.J0, acc=acc))
+            fi.write('{:.{acc}f},'.format(self.U0, acc=acc))
+            fi.write('{:.{acc}f},'.format(self.I2, acc=acc))
+            fi.write('{:.{acc}f},'.format(self.J2, acc=acc))
+            fi.write('{:.{acc}f},'.format(self.K2, acc=acc))           
+
 
         
 if __name__ == "__main__":
     # set parameters
-    U0 = 6.16 # mean windspeed ratio to rms speed
+    U0 = 4.11 # mean windspeed ratio to rms speed
     Urms = 1.46
     U = U0 * Urms
     dt = 5e-4
@@ -167,7 +183,6 @@ if __name__ == "__main__":
 
     # define the gaussian plume model
     gpm = GaussianPlume2D(J0, U)
-    print(gpm)
 
     # fit and evaluate the model
     # calculate the observed downwind variance
@@ -193,5 +208,6 @@ if __name__ == "__main__":
     ax.legend()
     plt.show()
 
-
-    
+    # save the result
+    gpm.save(f"../res/gpm{U0*100:.0f}_optim.txt")
+    print("wrote the results")
